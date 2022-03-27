@@ -12,6 +12,20 @@ class Slot {
   });
 }
 
+class ServiceEntry {
+  String host;
+  int port;
+
+  ServiceEntry({
+    required this.host,
+    required this.port,
+  });
+
+  String address() {
+    return "$host:$port";
+  }
+}
+
 class ControllerEntry {
   String address;
   List<Slot> slots = [];
