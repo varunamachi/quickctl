@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class CtrlrListWidget extends StatelessWidget {
-  const CtrlrListWidget({Key? key}) : super(key: key);
+class ListWidget extends StatelessWidget {
+  const ListWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
