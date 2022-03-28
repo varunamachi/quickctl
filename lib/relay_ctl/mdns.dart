@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:multicast_dns/multicast_dns.dart';
 import 'package:quickctl/relay_ctl/model.dart';
 
@@ -17,21 +19,25 @@ import 'package:quickctl/relay_ctl/model.dart';
 // }
 
 Future<List<ServiceEntry>> discoverControllers() async {
-  final MDnsClient client = MDnsClient();
+  // final MDnsClient client = MDnsClient(rawDatagramSocketFactory: RawDatagramSocket.bind);
+
+  var client = MDnsClient(rawDatagramSocketFactory: factory);
   await client.start();
   final entries = <ServiceEntry>[];
 
   try {
     final foundNames = <String>{};
+    // var ptrQuery = ResourceRecordQuery.serverPointer("_relayctl._tcp.local");
     var ptrQuery = ResourceRecordQuery.serverPointer("_relayctl._tcp.local");
     await for (final ptr in client.lookup<PtrResourceRecord>(ptrQuery)) {
       var serviceQuery = ResourceRecordQuery.service(ptr.domainName);
       await for (final srv in client.lookup<SrvResourceRecord>(serviceQuery)) {
         final id = "${srv.target}:${srv.port}";
-        if (!foundNames.contains(id)) {
-          foundNames.add(id);
-          entries.add(ServiceEntry(host: srv.target, port: srv.port));
+        if (foundNames.contains(id)) {
+          continue;
         }
+        foundNames.add(id);
+        entries.add(ServiceEntry(host: srv.target, port: srv.port));
       }
     }
   } finally {
@@ -50,4 +56,10 @@ Future<String> getAddress(ServiceEntry entry) async {
   }
 
   return "";
+}
+
+Future<RawDatagramSocket> factory(dynamic host, int port,
+    {bool? reuseAddress, bool? reusePort, int ttl = 1}) {
+  return RawDatagramSocket.bind(host, port,
+      reuseAddress: true, reusePort: false, ttl: ttl);
 }

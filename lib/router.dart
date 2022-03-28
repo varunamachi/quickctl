@@ -15,13 +15,13 @@ import 'package:flutter/material.dart';
 //   );
 // }
 
-// void navigateTo(BuildContext ctx, String path) {
-//   Navigator.pushNamed(ctx, path);
-// }
+void navigateTo(BuildContext ctx, String path) {
+  Navigator.pushNamed(ctx, path);
+}
 
-// void popNav(BuildContext ctx, String route, {Object? args}) {
-//   Navigator.of(ctx).pushNamedAndRemoveUntil(
-//     route,
-//     (Route<dynamic> route) => false,
-//   );
-// }
+void popNav(BuildContext ctx, String route, {Object? args}) {
+  Navigator.of(ctx).pushNamedAndRemoveUntil(
+    route,
+    (Route<dynamic> route) => false,
+  );
+}
