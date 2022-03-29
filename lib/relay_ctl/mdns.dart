@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:multicast_dns/multicast_dns.dart';
+import 'package:quickctl/relay_ctl/exceptions.dart';
 import 'package:quickctl/relay_ctl/model.dart';
 
 // class ServiceResolver {
@@ -18,7 +19,7 @@ import 'package:quickctl/relay_ctl/model.dart';
 //   }
 // }
 
-Future<List<ServiceEntry>> discoverControllers() async {
+Future<List<ServiceEntry>> discoverControllers({getIps = true}) async {
   // final MDnsClient client = MDnsClient(rawDatagramSocketFactory: RawDatagramSocket.bind);
 
   var client = MDnsClient(rawDatagramSocketFactory: factory);
@@ -28,16 +29,17 @@ Future<List<ServiceEntry>> discoverControllers() async {
   try {
     final foundNames = <String>{};
     // var ptrQuery = ResourceRecordQuery.serverPointer("_relayctl._tcp.local");
-    var ptrQuery = ResourceRecordQuery.serverPointer("_relayctl._tcp.local");
+    final ptrQuery = ResourceRecordQuery.serverPointer("_relayctl._tcp.local");
     await for (final ptr in client.lookup<PtrResourceRecord>(ptrQuery)) {
-      var serviceQuery = ResourceRecordQuery.service(ptr.domainName);
+      final serviceQuery = ResourceRecordQuery.service(ptr.domainName);
       await for (final srv in client.lookup<SrvResourceRecord>(serviceQuery)) {
         final id = "${srv.target}:${srv.port}";
         if (foundNames.contains(id)) {
           continue;
         }
         foundNames.add(id);
-        entries.add(ServiceEntry(host: srv.target, port: srv.port));
+
+        // entries.add(ServiceEntry(host: srv.target, port: srv.port));
       }
     }
   } finally {
@@ -47,15 +49,35 @@ Future<List<ServiceEntry>> discoverControllers() async {
   return entries;
 }
 
-Future<String> getAddress(ServiceEntry entry) async {
+Future<String> getFirstIPv4Address(ServiceEntry entry) async {
   final MDnsClient client = MDnsClient();
 
   final query = ResourceRecordQuery.addressIPv4(entry.host);
   await for (final ip in client.lookup<IPAddressResourceRecord>(query)) {
     return "${ip.address}:${entry.port}";
   }
+  throw RelayControllerException(
+      "failed to get IPv4 address for ${entry.host}");
+}
 
-  return "";
+Future<List<InternetAddress>> getIPv4Address(
+    MDnsClient client, String srvName) async {
+  final query = ResourceRecordQuery.addressIPv4(srvName);
+  final ips = <InternetAddress>[];
+  await for (final ip in client.lookup<IPAddressResourceRecord>(query)) {
+    ips.add(ip.address);
+  }
+  return ips;
+}
+
+Future<List<InternetAddress>> getIPv6Address(
+    MDnsClient client, String srvName) async {
+  final query = ResourceRecordQuery.addressIPv6(srvName);
+  final ips = <InternetAddress>[];
+  await for (final ip in client.lookup<IPAddressResourceRecord>(query)) {
+    ips.add(ip.address);
+  }
+  return ips;
 }
 
 Future<RawDatagramSocket> factory(dynamic host, int port,

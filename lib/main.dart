@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:multicast_dns/multicast_dns.dart';
-import 'package:quickctl/relay_ctl/discover_widget.dart';
+import 'package:quickctl/relay_ctl/widgets/discover_widget.dart';
+import 'package:quickctl/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,12 +20,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Flutter Demo',
+        onGenerateRoute: onGenerateRoute,
         theme: ThemeData(
           primarySwatch: Colors.orange,
         ),
         home: Scaffold(
-          appBar: AppBar(title: const Text("Hello")),
-          body: DiscoverWidget(),
+          appBar: AppBar(title: const Text("QCtl")),
         ));
   }
 }

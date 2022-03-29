@@ -5,7 +5,7 @@ import 'package:quickctl/relay_ctl/model.dart';
 class DiscoverWidget extends StatefulWidget {
   static const id = "relayctl.discover";
 
-  DiscoverWidget({Key? key}) : super(key: key);
+  const DiscoverWidget({Key? key}) : super(key: key);
 
   @override
   State<DiscoverWidget> createState() => _DiscoverWidgetState();
@@ -34,12 +34,12 @@ class _DiscoverWidgetState extends State<DiscoverWidget> {
           } else if (snapshot.hasError) {
             return Center(child: Text("-- ${snapshot.error.toString()}--"));
           }
-          // return Text("${snapshot.data?.length}");
-          return ListView.builder(
-              itemCount: snapshot.data?.length,
-              itemBuilder: (context, index) {
-                return Text("${snapshot.data?[index].host}");
-              });
+          return Text("${snapshot.data?.length}");
+          // return ListView.builder(
+          //     itemCount: snapshot.data?.length,
+          //     itemBuilder: (context, index) {
+          //       return Text("${snapshot.data?[index].host}");
+          //     });
         },
       ),
     );

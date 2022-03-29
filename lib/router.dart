@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:quickctl/relay_ctl/widgets/discover_widget.dart';
 
-// Route<dynamic> onGenerateRoute(RouteSettings settings) {
-//   return Route(settings: settings);
-// }
+Route<dynamic> onGenerateRoute(RouteSettings settings) {
+  return build(const DiscoverWidget());
+}
 
-// PageRouteBuilder<dynamic> _build(Widget screen) {
-//   return PageRouteBuilder<dynamic>(
-//     pageBuilder: (BuildContext ctx, __, ___) {
-
-//     },
-//     transitionsBuilder: (_, anim, __, child) {
-//       return FadeTransition(opacity: anim, child: child);
-//     },
-//   );
-// }
+PageRouteBuilder<dynamic> build(Widget screen) {
+  return PageRouteBuilder<dynamic>(
+    pageBuilder: (BuildContext ctx, __, ___) {
+      return screen;
+    },
+    transitionsBuilder: (_, anim, __, child) {
+      return FadeTransition(opacity: anim, child: child);
+    },
+  );
+}
 
 void navigateTo(BuildContext ctx, String path) {
   Navigator.pushNamed(ctx, path);

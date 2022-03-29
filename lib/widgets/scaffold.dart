@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quickctl/relay_ctl/discover_widget.dart';
+import 'package:quickctl/relay_ctl/widgets/discover_widget.dart';
 import 'package:quickctl/router.dart';
 
 class _ScreenDesc {

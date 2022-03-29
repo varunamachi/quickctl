@@ -1,5 +1,7 @@
 // part "model.g.dart";
 
+import 'dart:io';
+
 class Slot {
   String name;
   String index;
@@ -13,17 +15,17 @@ class Slot {
 }
 
 class ServiceEntry {
-  String host;
-  int port;
+  final String host;
+  final int port;
+  final List<InternetAddress> currentIp4;
+  final List<InternetAddress> currentIp6;
 
-  ServiceEntry({
+  const ServiceEntry({
     required this.host,
     required this.port,
+    required this.currentIp4,
+    required this.currentIp6,
   });
-
-  String address() {
-    return "$host:$port";
-  }
 }
 
 class ControllerEntry {
