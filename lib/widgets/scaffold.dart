@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quickctl/relay_ctl/widgets/discover_widget.dart';
+import 'package:quickctl/relay_ctl/screens/controllers_screen.dart';
+import 'package:quickctl/relay_ctl/screens/discover_screen.dart';
 import 'package:quickctl/router.dart';
 
 class _ScreenDesc {
@@ -24,13 +25,19 @@ class _ScreenDesc {
 List<_ScreenDesc> getMenu(BuildContext ctx) {
   final menus = <_ScreenDesc>[
     const _ScreenDesc(
-      name: "Relay Ctrl",
+      name: "Controllers",
       icon: Icons.switch_access_shortcut,
       route: _ScreenDesc.routeIDNone,
       children: [
         _ScreenDesc(
+          name: "Controllers",
+          route: ControllersScreen.id,
+          icon: Icons.present_to_all,
+          children: [],
+        ),
+        _ScreenDesc(
           name: "Discover & Add",
-          route: DiscoverWidget.id,
+          route: DiscoverScreen.id,
           icon: Icons.present_to_all,
           children: [],
         ),
@@ -41,12 +48,12 @@ List<_ScreenDesc> getMenu(BuildContext ctx) {
   return menus;
 }
 
-class MkScaffold extends StatelessWidget {
+class QScaffold extends StatelessWidget {
   final AppBar appBar;
   final Widget? floatingActionButton;
   final Widget body;
 
-  const MkScaffold({
+  const QScaffold({
     Key? key,
     required this.appBar,
     required this.body,
@@ -79,7 +86,7 @@ class MkScaffold extends StatelessWidget {
               margin: const EdgeInsets.all(0),
               child: Center(
                 child: Text(
-                  "marukatte",
+                  "QuickCtl",
                   style: GoogleFonts.pacifico(
                     fontSize: 40,
                   ),

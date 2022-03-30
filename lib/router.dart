@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:quickctl/relay_ctl/widgets/discover_widget.dart';
+import 'package:quickctl/relay_ctl/screens/controllers_screen.dart';
+import 'package:quickctl/relay_ctl/screens/discover_screen.dart';
 
 Route<dynamic> onGenerateRoute(RouteSettings settings) {
-  return build(const DiscoverWidget());
+  if (settings.name == DiscoverScreen.id) {
+    return build(const DiscoverScreen());
+  }
+  if (settings.name == ControllersScreen.id) {
+    return build(const ControllersScreen());
+  }
+  return build(const Center(
+    child: Text("Invalid route"),
+  ));
 }
 
-PageRouteBuilder<dynamic> build(Widget screen) {
-  return PageRouteBuilder<dynamic>(
+PageRouteBuilder<Widget> build(Widget screen) {
+  return PageRouteBuilder<Widget>(
     pageBuilder: (BuildContext ctx, __, ___) {
       return screen;
     },

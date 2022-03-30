@@ -38,8 +38,14 @@ Future<List<ServiceEntry>> discoverControllers({getIps = true}) async {
           continue;
         }
         foundNames.add(id);
-
-        // entries.add(ServiceEntry(host: srv.target, port: srv.port));
+        final ip4 = await getIPv4Address(client, srv.target);
+        final ip6 = await getIPv6Address(client, srv.target);
+        entries.add(ServiceEntry(
+          host: srv.target,
+          port: srv.port,
+          currentIp4: ip4,
+          currentIp6: ip6,
+        ));
       }
     }
   } finally {
