@@ -3,8 +3,9 @@ import 'package:quickctl/params/model.dart';
 
 class ControlWidget extends StatefulWidget {
   final List<ControlItem> items;
+  final ControlValues values;
 
-  const ControlWidget({required this.items, super.key});
+  const ControlWidget({required this.items, required this.values, super.key});
 
   @override
   State<ControlWidget> createState() => _ControlWidgetState();

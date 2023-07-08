@@ -108,4 +108,8 @@ class ControlValues {
   bool getBool(String key) {
     return (values[key] ?? false) as bool;
   }
+
+  String getString(String key) {
+    return (values[key] ?? '') as String;
+  }
 }
