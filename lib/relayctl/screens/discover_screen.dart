@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:quickctl/relay_ctl/mdns.dart';
-import 'package:quickctl/relay_ctl/model.dart';
-import 'package:quickctl/relay_ctl/widgets/discovered_controllers.dart';
+import 'package:quickctl/relayctl/mdns.dart';
+import 'package:quickctl/relayctl/model.dart';
+import 'package:quickctl/relayctl/widgets/discovered_controllers.dart';
 import 'package:quickctl/widgets/scaffold.dart';
 
 class DiscoverScreen extends StatefulWidget {

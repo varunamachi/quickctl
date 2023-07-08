@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:quickctl/relay_ctl/screens/controllers_screen.dart';
-import 'package:quickctl/relay_ctl/screens/discover_screen.dart';
+import 'package:quickctl/relayctl/screens/controllers_screen.dart';
+import 'package:quickctl/relayctl/screens/discover_screen.dart';
 
 Route<dynamic> onGenerateRoute(RouteSettings settings) {
   if (settings.name == DiscoverScreen.id) {

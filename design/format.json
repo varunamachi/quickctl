@@ -1,0 +1,25 @@
+{
+    "params": [
+        {
+            "id": "",
+            "name": "",
+            "desc": "",
+            "type": "constant | boolean | choice | range | date | dateRange",
+            "props": {
+                "options": {
+                    "key1": "value1",
+                    "key2": "value2"
+                },
+                "range": {
+                    "start": 0.0,
+                    "end": 0.0,
+                    "step": 0.0
+                },
+                "date-range": {
+                    "start": "date-string",
+                    "end": "date-string"
+                }
+            }
+        }
+    ]
+}

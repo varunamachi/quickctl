@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:quickctl/relay_ctl/screens/controllers_screen.dart';
+import 'package:quickctl/relayctl/screens/controllers_screen.dart';
 import 'package:quickctl/router.dart';
 
 void main() async {

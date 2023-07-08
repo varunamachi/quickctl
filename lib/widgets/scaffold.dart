@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quickctl/relay_ctl/screens/controllers_screen.dart';
-import 'package:quickctl/relay_ctl/screens/discover_screen.dart';
+import 'package:quickctl/relayctl/screens/controllers_screen.dart';
+import 'package:quickctl/relayctl/screens/discover_screen.dart';
 import 'package:quickctl/router.dart';
 
 class _ScreenDesc {

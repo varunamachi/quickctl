@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quickctl/relay_ctl/widgets/selected_controllers.dart';
+import 'package:quickctl/relayctl/widgets/selected_controllers.dart';
 import 'package:quickctl/widgets/scaffold.dart';
 
 class ControllersScreen extends StatelessWidget {

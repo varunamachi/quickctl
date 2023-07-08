@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:multicast_dns/multicast_dns.dart';
-import 'package:quickctl/relay_ctl/exceptions.dart';
-import 'package:quickctl/relay_ctl/model.dart';
+import 'package:quickctl/relayctl/exceptions.dart';
+import 'package:quickctl/relayctl/model.dart';
 
 // class ServiceResolver {
 //   static final ServiceResolver _instance = ServiceResolver._internal();

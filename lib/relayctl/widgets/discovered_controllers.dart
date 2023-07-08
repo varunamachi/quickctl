@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:quickctl/relay_ctl/model.dart';
+import 'package:quickctl/relayctl/model.dart';
 
 class DiscoveredControllers extends StatelessWidget {
   final Future<List<ServiceEntry>> serviceEntries;
