@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'model.g.dart';
@@ -7,6 +8,7 @@ enum ControlType {
   constant,
   boolean,
   choice,
+  number,
   range,
   date,
   dateRange,
@@ -18,28 +20,35 @@ class Range with _$Range {
   // final num end;
   // final num step;
 
-  const factory Range(
-      {required num start, required num end, required num step}) = _Range;
+  const factory Range({
+    required double start,
+    required double end,
+    required int divs,
+  }) = _Range;
 
   factory Range.fromJson(Map<String, Object?> json) => _$RangeFromJson(json);
 }
 
 @freezed
 class DateRange with _$DateRange {
-  const factory DateRange({required DateTime start, required DateTime end}) =
-      $DateRange;
+  const factory DateRange({
+    required DateTime start,
+    required DateTime end,
+  }) = $DateRange;
+
+  factory DateRange.empty() {
+    return DateRange(start: DateTime.now(), end: DateTime.now());
+  }
 
   factory DateRange.fromJson(Map<String, Object?> json) =>
       _$DateRangeFromJson(json);
 }
 
 @freezed
-class Options with _$Options {
-  const factory Options({required String name, required String value}) =
-      $Option;
+class Option with _$Option {
+  const factory Option({required String name, required String value}) = $Option;
 
-  factory Options.fromJson(Map<String, Object?> json) =>
-      _$OptionsFromJson(json);
+  factory Option.fromJson(Map<String, Object?> json) => _$OptionFromJson(json);
 }
 
 @freezed
@@ -47,7 +56,6 @@ class BoolOpts with _$BoolOpts {
   const factory BoolOpts({
     @Default("On") String trueLabel,
     @Default("Off") String falseLabel,
-    @Default(false) bool hasNone,
     @Default("") String noneLabel,
   }) = $BoolOpts;
 
@@ -59,8 +67,8 @@ class BoolOpts with _$BoolOpts {
 class ControlProps with _$ControlProps {
   const factory ControlProps({
     Range? range,
-    DateRange? dates,
-    Options? options,
+    DateRange? dateRange,
+    @Default(<Option>[]) List<Option> options,
     BoolOpts? boolOpts,
     String? constVal,
   }) = $ControlProps;
@@ -95,10 +103,45 @@ class ControlGroup with _$ControlGroup {
 }
 
 @JsonSerializable()
-class ControlValues {
-  final Map<String, dynamic> values;
+class RangeValuesX extends RangeValues {
+  const RangeValuesX(super.start, super.end);
 
-  ControlValues(this.values);
+  factory RangeValuesX.fromJson(Map<String, Object?> json) =>
+      _$RangeValuesXFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RangeValuesXToJson(this);
+}
+
+@JsonSerializable()
+class DateTimeRangeX extends DateTimeRange {
+  DateTimeRangeX(DateTime start, DateTime end) : super(start: start, end: end);
+
+  factory DateTimeRangeX.empty() =>
+      DateTimeRangeX(DateTime.now(), DateTime.now());
+
+  factory DateTimeRangeX.fromJson(Map<String, Object?> json) =>
+      _$DateTimeRangeXFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DateTimeRangeXToJson(this);
+}
+
+@JsonSerializable()
+class ControlValues {
+  Map<String, String>? strings;
+  Map<String, bool>? bools;
+  Map<String, double>? numbers;
+  Map<String, RangeValuesX>? ranges;
+  Map<String, DateTime>? dateTimes;
+  Map<String, DateTimeRangeX>? dateTimeRanges;
+
+  ControlValues({
+    this.strings,
+    this.bools,
+    this.numbers,
+    this.ranges,
+    this.dateTimes,
+    this.dateTimeRanges,
+  });
 
   factory ControlValues.fromJson(Map<String, Object?> json) =>
       _$ControlValuesFromJson(json);
@@ -106,10 +149,30 @@ class ControlValues {
   Map<String, dynamic> toJson() => _$ControlValuesToJson(this);
 
   bool getBool(String key) {
-    return (values[key] ?? false) as bool;
+    return bools?[key] ?? false;
   }
 
   String getString(String key) {
-    return (values[key] ?? '') as String;
+    return strings?[key] ?? '';
+  }
+
+  double getNumber(String key) {
+    return numbers?[key] ?? 0.0;
+  }
+
+  RangeValuesX getRange(String key) {
+    var val = ranges?[key];
+    if (val != null) {
+      return val;
+    }
+    return const RangeValuesX(0.0, 0.0);
+  }
+
+  DateTime getDateTime(String key) {
+    return dateTimes?[key] ?? DateTime.now();
+  }
+
+  DateTimeRangeX getDateTimeRange(String key) {
+    return dateTimeRanges?[key] ?? DateTimeRangeX.empty();
   }
 }
