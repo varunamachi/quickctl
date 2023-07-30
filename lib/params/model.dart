@@ -7,11 +7,18 @@ part 'model.freezed.dart';
 enum ControlType {
   constant,
   boolean,
+  tristate,
   choice,
   number,
   range,
   date,
   dateRange,
+}
+
+enum Tristate {
+  on,
+  off,
+  none,
 }
 
 @freezed
@@ -56,7 +63,6 @@ class BoolOpts with _$BoolOpts {
   const factory BoolOpts({
     @Default("On") String trueLabel,
     @Default("Off") String falseLabel,
-    @Default("") String noneLabel,
   }) = $BoolOpts;
 
   factory BoolOpts.fromJson(Map<String, Object?> json) =>
@@ -64,12 +70,25 @@ class BoolOpts with _$BoolOpts {
 }
 
 @freezed
+class TristateOpts with _$TristateOpts {
+  const factory TristateOpts({
+    @Default("On") String trueLabel,
+    @Default("Off") String falseLabel,
+    @Default("None") String noneLabel,
+  }) = $TristateOpts;
+
+  factory TristateOpts.fromJson(Map<String, Object?> json) =>
+      _$TristateOptsFromJson(json);
+}
+
+@freezed
 class ControlProps with _$ControlProps {
   const factory ControlProps({
+    BoolOpts? boolOpts,
+    TristateOpts? tristateOpts,
+    @Default(<Option>[]) List<Option> options,
     Range? range,
     DateRange? dateRange,
-    @Default(<Option>[]) List<Option> options,
-    BoolOpts? boolOpts,
     String? constVal,
   }) = $ControlProps;
 
@@ -94,7 +113,9 @@ class ControlItem with _$ControlItem {
 @freezed
 class ControlGroup with _$ControlGroup {
   const factory ControlGroup({
+    required String id,
     required String name,
+    @Default("") String desc,
     required List<ControlItem> items,
   }) = $ControlGroup;
 
@@ -106,6 +127,9 @@ class ControlGroup with _$ControlGroup {
 class RangeValuesX extends RangeValues {
   const RangeValuesX(super.start, super.end);
 
+  factory RangeValuesX.fromRangeValues(RangeValues orig) =>
+      RangeValuesX(orig.start, orig.end);
+
   factory RangeValuesX.fromJson(Map<String, Object?> json) =>
       _$RangeValuesXFromJson(json);
 
@@ -115,6 +139,12 @@ class RangeValuesX extends RangeValues {
 @JsonSerializable()
 class DateTimeRangeX extends DateTimeRange {
   DateTimeRangeX(DateTime start, DateTime end) : super(start: start, end: end);
+
+  factory DateTimeRangeX.fromDateTimeRange(DateTimeRange orig) =>
+      DateTimeRangeX(orig.start, orig.end);
+
+  factory DateTimeRangeX.fromDateRange(DateRange orig) =>
+      DateTimeRangeX(orig.start, orig.end);
 
   factory DateTimeRangeX.empty() =>
       DateTimeRangeX(DateTime.now(), DateTime.now());
@@ -127,16 +157,18 @@ class DateTimeRangeX extends DateTimeRange {
 
 @JsonSerializable()
 class ControlValues {
-  Map<String, String>? strings;
   Map<String, bool>? bools;
+  Map<String, Tristate>? tristates;
+  Map<String, String>? options;
   Map<String, double>? numbers;
   Map<String, RangeValuesX>? ranges;
   Map<String, DateTime>? dateTimes;
   Map<String, DateTimeRangeX>? dateTimeRanges;
 
   ControlValues({
-    this.strings,
     this.bools,
+    this.tristates,
+    this.options,
     this.numbers,
     this.ranges,
     this.dateTimes,
@@ -148,31 +180,108 @@ class ControlValues {
 
   Map<String, dynamic> toJson() => _$ControlValuesToJson(this);
 
-  bool getBool(String key) {
-    return bools?[key] ?? false;
+  bool getBool(ControlItem item) {
+    if (bools == null) {
+      return false;
+    }
+    return bools![item.id] ?? false;
   }
 
-  String getString(String key) {
-    return strings?[key] ?? '';
+  Tristate getTristate(ControlItem item) {
+    if (item.props.tristateOpts == null || tristates == null) {
+      return Tristate.off;
+    }
+
+    return tristates![item.id] ?? Tristate.off;
   }
 
-  double getNumber(String key) {
-    return numbers?[key] ?? 0.0;
+  String getString(ControlItem item) {
+    final val = options?[item.id] ?? '';
+    if (val.isNotEmpty) {
+      return val;
+    }
+
+    if (item.props.options.isEmpty) {
+      return 'N/A';
+    }
+
+    return item.props.options[0].value;
   }
 
-  RangeValuesX getRange(String key) {
-    var val = ranges?[key];
+  Option? getOption(ControlItem item) {
+    final val = options?[item.id] ?? '';
+    for (var opt in item.props.options) {
+      if (val == opt.value) {
+        return opt;
+      }
+    }
+
+    if (item.props.options.isNotEmpty) {
+      return item.props.options[0];
+    }
+
+    return null;
+  }
+
+  double getNumber(ControlItem item) {
+    return numbers?[item.id] ?? item.props.range?.start ?? 0;
+  }
+
+  RangeValuesX getRange(ControlItem item) {
+    var val = ranges?[item.id];
     if (val != null) {
       return val;
     }
-    return const RangeValuesX(0.0, 0.0);
+    return RangeValuesX(
+        item.props.range?.start ?? 0, item.props.range?.end ?? 0);
   }
 
-  DateTime getDateTime(String key) {
-    return dateTimes?[key] ?? DateTime.now();
+  DateTime getDateTime(ControlItem item) {
+    return dateTimes?[item.id] ?? item.props.dateRange?.start ?? DateTime.now();
   }
 
-  DateTimeRangeX getDateTimeRange(String key) {
-    return dateTimeRanges?[key] ?? DateTimeRangeX.empty();
+  DateTimeRangeX getDateTimeRange(ControlItem item) {
+    var drx = dateTimeRanges?[item.id];
+    if (drx != null) {
+      return drx;
+    }
+
+    if (item.props.dateRange != null) {
+      return DateTimeRangeX(
+          item.props.dateRange!.start, item.props.dateRange!.end);
+    }
+
+    return DateTimeRangeX.empty();
+  }
+
+  void setValue(ControlItem item, dynamic value) {
+    // Map<String, String>? strings;
+    // Map<String, double>? numbers;
+    // Map<String, RangeValuesX>? ranges;
+    // Map<String, DateTime>? dateTimes;
+    // Map<String, DateTimeRangeX>? dateTimeRanges;
+    if (value == null) {
+      return;
+    }
+
+    switch (item.type) {
+      case ControlType.constant:
+        break;
+      case ControlType.boolean:
+        (bools ??= <String, bool>{})[item.id] = value as bool;
+      case ControlType.tristate:
+        (tristates ??= <String, Tristate>{})[item.id] = value as Tristate;
+      case ControlType.choice:
+        (options ??= <String, String>{})[item.id] = value as String;
+      case ControlType.number:
+        (numbers ??= <String, double>{})[item.id] = value as double;
+      case ControlType.range:
+        (ranges ??= <String, RangeValuesX>{})[item.id] = value as RangeValuesX;
+      case ControlType.date:
+        (dateTimes ??= <String, DateTime>{})[item.id] = value as DateTime;
+      case ControlType.dateRange:
+        (dateTimeRanges ??= <String, DateTimeRangeX>{})[item.id] =
+            value as DateTimeRangeX;
+    }
   }
 }

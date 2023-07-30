@@ -1,6 +1,8 @@
 [
     {
-        "name": "default",
+        "id": "default",
+        "name": "Default Group",
+        "desc": "Default control group",
         "items": [
             {
                 "id": "control.constant",
@@ -15,9 +17,9 @@
                 "id": "control.tristate",
                 "name": "Tristate One",
                 "desc": "A tristate/boolean control",
-                "type": "boolean",
+                "type": "tristate",
                 "props": {
-                    "boolOpts": {
+                    "tristateOpts": {
                         "trueLabel": "ON",
                         "falseLabel": "OFF",
                         "noneLabel": "AUTO"
@@ -62,7 +64,7 @@
                     "range": {
                         "start": 1.0,
                         "end": 100.0,
-                        "divs": 10.0
+                        "divs": 10
                     }
                 }
             },
@@ -75,7 +77,7 @@
                     "range": {
                         "start": 1.0,
                         "end": 100.0,
-                        "divs": 10.0
+                        "divs": 10
                     }
                 }
             },
@@ -93,13 +95,54 @@
             },
             {
                 "id": "control.dateRange",
-                "name": "Date Time One",
+                "name": "Date Time Range",
                 "desc": "A date time control",
                 "type": "dateRange",
                 "props": {
                     "dateRange": {
                         "start": "2023-06-11 19:00:00",
-                        "end": "2023-07-11 19:00:00"
+                        "end": "2023-08-11 19:00:00"
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "id": "second",
+        "name": "Second Group",
+        "items": [
+            {
+                "id": "control.constant.2",
+                "name": "Constant Two",
+                "desc": "Demonstrates a constant value",
+                "type": "constant",
+                "props": {
+                    "constVal": "Sample Value"
+                }
+            },
+            {
+                "id": "control.tristate.2",
+                "name": "Tristate Two",
+                "desc": "A tristate/boolean control",
+                "type": "tristate",
+                "props": {
+                    "tristateOpts": {
+                        "trueLabel": "ON",
+                        "falseLabel": "OFF",
+                        "noneLabel": "AUTO"
+                    }
+                }
+            },
+            {
+                "id": "control.range.2",
+                "name": "Range Two",
+                "desc": "A number range control",
+                "type": "range",
+                "props": {
+                    "range": {
+                        "start": 1.0,
+                        "end": 100.0,
+                        "divs": 10
                     }
                 }
             }

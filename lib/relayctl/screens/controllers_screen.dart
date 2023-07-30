@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quickctl/params/widgets/control_widget.dart';
 import 'package:quickctl/relayctl/widgets/selected_controllers.dart';
 import 'package:quickctl/widgets/scaffold.dart';
 
@@ -13,6 +14,6 @@ class ControllersScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text("Controllers"),
         ),
-        body: const SelectedControllers());
+        body: const ControlWidget());
   }
 }
