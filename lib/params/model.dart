@@ -5,19 +5,39 @@ part 'model.g.dart';
 part 'model.freezed.dart';
 
 enum ControlType {
+  @JsonValue("Constant")
   constant,
+
+  @JsonValue("Boolean")
   boolean,
+
+  @JsonValue("Tristate")
   tristate,
+
+  @JsonValue("Choice")
   choice,
+
+  @JsonValue("Number")
   number,
+
+  @JsonValue("Range")
   range,
+
+  @JsonValue("Date")
   date,
+
+  @JsonValue("DateRange")
   dateRange,
 }
 
 enum Tristate {
+  @JsonValue("On")
   on,
+
+  @JsonValue("Off")
   off,
+
+  @JsonValue("None")
   none,
 }
 

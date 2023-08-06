@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:quickctl/params/model.dart';
-import 'package:quickctl/params/widgets/control_item_widget.dart';
+import 'package:quickctl/params/widgets/control_item_list.dart';
 import 'package:quickctl/services/model.dart';
 import 'package:quickctl/services/utils.dart';
 
@@ -35,7 +36,7 @@ class _ControlWidgetState extends State<ControlWidget> {
         }
 
         if (data.length == 1) {
-          return ControlItemWidget(
+          return ControlItemList(
             items: data[0].items,
             values: values,
             handler: (item, value) async => Future.value(true),
@@ -45,8 +46,8 @@ class _ControlWidgetState extends State<ControlWidget> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: ListView.builder(
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
+            // shrinkWrap: true,
+            // physics: const ClampingScrollPhysics(),
             itemCount: data.length,
             itemBuilder: (ctx, index) {
               return ExpansionTile(
@@ -62,8 +63,8 @@ class _ControlWidgetState extends State<ControlWidget> {
                 children: [
                   Container(
                     color: Theme.of(context).cardColor,
-                    padding: const EdgeInsets.only(left: 10),
-                    child: ControlItemWidget(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: ControlItemList(
                       items: data[index].items,
                       values: values,
                       handler: (item, value) async => Future.value(true),
@@ -91,7 +92,13 @@ class _ControlWidgetState extends State<ControlWidget> {
   }
 
   Future<List<ControlGroup>> readFromAsset() async {
-    final content = await File('assets/ctlr_sample.json').readAsString();
+    String content = '[]';
+    if (Platform.isAndroid) {
+      content = await rootBundle.loadString('assets/ctlr_sample.json');
+    } else if (Platform.isLinux) {
+      content = await File('assets/ctlr_sample.json').readAsString();
+    }
+
     final list = jsonDecode(content) as List<dynamic>;
 
     final cgs = <ControlGroup>[];

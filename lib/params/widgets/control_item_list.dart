@@ -1,19 +1,23 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:quickctl/params/model.dart';
+import 'package:quickctl/services/utils.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 typedef ValueChangeHandler = Future<bool> Function(
     ControlItem item, dynamic value);
 
-class ControlItemWidget extends StatefulWidget {
+class ControlItemList extends StatefulWidget {
   final List<ControlItem> items;
   final ControlValues values;
   final ValueChangeHandler handler;
 
-  const ControlItemWidget({
+  const ControlItemList({
     required this.items,
     required this.values,
     required this.handler,
@@ -21,10 +25,10 @@ class ControlItemWidget extends StatefulWidget {
   });
 
   @override
-  State<ControlItemWidget> createState() => _ControlItemWidgetState();
+  State<ControlItemList> createState() => _ControlItemListState();
 }
 
-class _ControlItemWidgetState extends State<ControlItemWidget> {
+class _ControlItemListState extends State<ControlItemList> {
   @override
   Widget build(BuildContext ctx) {
     return ListView.builder(
@@ -48,36 +52,37 @@ class _ControlItemWidgetState extends State<ControlItemWidget> {
   }
 
   Widget _buildConstantWidget(BuildContext ctx, ControlItem item) {
-    return ListTile(
-      title: Text(item.name),
-      subtitle: Text(item.desc),
-      trailing: Text(item.props.constVal ?? '<invalid>'),
-    );
+    return wrap(ctx, item,
+        value: Text(
+          item.props.constVal ?? '<invalid>',
+          style: GoogleFonts.firaCode(),
+        ));
   }
 
   Widget _buildBooleanWidget(BuildContext ctx, ControlItem item) {
     var value = widget.values.getBool(item);
+    final trueLabel = item.props.boolOpts?.trueLabel ?? 'On';
+    final falseLabel = item.props.boolOpts?.falseLabel ?? 'Off';
     var boolWidget = ToggleSwitch(
       initialLabelIndex: value ? 0 : 1,
       totalSwitches: 2,
       labels: [
-        item.props.boolOpts?.trueLabel ?? 'On',
-        item.props.boolOpts?.falseLabel ?? 'Off',
+        trueLabel,
+        falseLabel,
       ],
       onToggle: (index) async => await setValue(item, index == 0),
     );
 
-    return ListTile(
-      title: Text(item.name),
-      subtitle: Text(item.desc),
-      trailing: boolWidget,
-    );
+    return wrap(ctx, item, ctrlr: boolWidget);
   }
 
   Widget _buildTristateWidget(BuildContext ctx, ControlItem item) {
     final value = widget.values.getTristate(item);
+    final trueLabel = item.props.tristateOpts?.trueLabel ?? 'On';
+    final falseLabel = item.props.tristateOpts?.falseLabel ?? 'Off';
+    final noneLabel = item.props.tristateOpts?.noneLabel ?? 'None';
 
-    final boolWidget = ToggleSwitch(
+    final tristateWidget = ToggleSwitch(
       initialLabelIndex: switch (value) {
         Tristate.on => 0,
         Tristate.off => 1,
@@ -85,9 +90,9 @@ class _ControlItemWidgetState extends State<ControlItemWidget> {
       },
       totalSwitches: 3,
       labels: [
-        item.props.tristateOpts?.trueLabel ?? 'On',
-        item.props.tristateOpts?.falseLabel ?? 'Off',
-        item.props.tristateOpts?.noneLabel ?? 'None',
+        trueLabel,
+        falseLabel,
+        noneLabel,
       ],
       onToggle: (index) async {
         await setValue(
@@ -100,43 +105,32 @@ class _ControlItemWidgetState extends State<ControlItemWidget> {
       },
     );
 
-    return ListTile(
-      title: Text(item.name),
-      subtitle: Text(item.desc),
-      trailing: boolWidget,
-    );
+    return wrap(ctx, item, ctrlr: tristateWidget);
   }
 
   Widget _buildChoiceWidget(BuildContext ctx, ControlItem item) {
     final selected = widget.values.getOption(item);
     if (selected == null) {
-      return ListTile(
-        title: Text(item.name),
-        subtitle: Text(item.desc),
-        trailing: const Text("<Invalid>"),
-      );
+      return wrap(ctx, item, value: const Text('<invalid>'));
     }
 
-    final combo = DropdownButton(
-      value: selected.value,
-      items: [
-        for (Option opt in item.props.options)
-          DropdownMenuItem<String>(
-            value: opt.value,
-            child: Text(opt.name),
-          )
-      ],
-      onChanged: (val) async => await setValue(item, val),
+    final combo = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: DropdownButton(
+        isExpanded: true,
+        value: selected.value,
+        items: [
+          for (Option opt in item.props.options)
+            DropdownMenuItem<String>(
+              value: opt.value,
+              child: Text(opt.name),
+            )
+        ],
+        onChanged: (val) async => await setValue(item, val),
+      ),
     );
 
-    return ExpansionTile(
-      title: Text(item.name),
-      subtitle: Text(item.desc),
-      trailing: Text(selected.name),
-      children: [
-        combo,
-      ],
-    );
+    return wrap(ctx, item, ctrlr: combo);
   }
 
   Widget _buildNumberWidget(BuildContext ctx, ControlItem item) {
@@ -148,6 +142,7 @@ class _ControlItemWidgetState extends State<ControlItemWidget> {
       value: value,
       min: rangeStart,
       max: rangeEnd,
+      label: "$value",
       divisions: item.props.range?.divs ?? 1,
       onChanged: (newVal) => {
         setState(() {
@@ -157,25 +152,16 @@ class _ControlItemWidgetState extends State<ControlItemWidget> {
       onChangeEnd: (val) async => await setValue(item, val),
     );
 
-    return ExpansionTile(
-      title: Text(item.name),
-      subtitle: Text(item.desc),
-      trailing: Text("$value"),
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            // crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text("$rangeStart", style: GoogleFonts.firaCode()),
-              Expanded(child: paramWidget),
-              Text("$rangeEnd", style: GoogleFonts.firaCode()),
-            ],
-          ),
-        ),
-      ],
-    );
+    return wrap(ctx, item,
+        ctrlr: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text("$rangeStart", style: GoogleFonts.firaCode()),
+            Expanded(child: paramWidget),
+            Text("$rangeEnd", style: GoogleFonts.firaCode()),
+          ],
+        ));
   }
 
   Widget _buildRangeWidget(BuildContext ctx, ControlItem item) {
@@ -188,6 +174,10 @@ class _ControlItemWidgetState extends State<ControlItemWidget> {
       min: rangeStart,
       max: rangeEnd,
       divisions: item.props.range?.divs ?? 1,
+      labels: RangeLabels(
+        "${value.start}",
+        "${value.end}",
+      ),
       onChanged: (val) {
         setState(() {
           widget.values.setValue(item, RangeValuesX.fromRangeValues(val));
@@ -197,27 +187,17 @@ class _ControlItemWidgetState extends State<ControlItemWidget> {
           await setValue(item, RangeValuesX.fromRangeValues(val)),
     );
 
-    return ExpansionTile(
-      title: Text(item.name),
-      subtitle: Text(item.desc),
-      trailing: Text(
-        "${value.start} -> ${value.end}",
-        style: GoogleFonts.firaCode(),
+    return wrap(
+      ctx,
+      item,
+      ctrlr: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text("$rangeStart", style: GoogleFonts.firaCode()),
+          Expanded(child: paramWidget),
+          Text("$rangeEnd", style: GoogleFonts.firaCode()),
+        ],
       ),
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            // crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text("$rangeStart", style: GoogleFonts.firaCode()),
-              Expanded(child: paramWidget),
-              Text("$rangeEnd", style: GoogleFonts.firaCode()),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -238,26 +218,17 @@ class _ControlItemWidgetState extends State<ControlItemWidget> {
       icon: const Icon(Icons.calendar_month),
     );
 
-    return ListTile(
-      title: Text(item.name),
-      subtitle: Text(item.desc),
-      trailing: SizedBox(
-        width: 250,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+    return wrap(ctx, item,
+        ctrlr: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               DateFormat("y-MM-dd HH:mm:ss").format(value),
               style: GoogleFonts.firaCode(),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: paramWidget,
-            ),
+            paramWidget
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _buildDateRangeWidget(BuildContext ctx, ControlItem item) {
@@ -285,41 +256,25 @@ class _ControlItemWidgetState extends State<ControlItemWidget> {
     final start = DateFormat("y-MM-dd HH:mm:ss").format(values.start);
     final end = DateFormat("y-MM-dd HH:mm:ss").format(values.end);
 
-    return ExpansionTile(
-      // leading: const Icon(Icons.arrow_downward),
-      title: Text(item.name),
-      subtitle: Text(item.desc),
-      // trailing: paramWidget,
-      trailing: SizedBox(
-        width: 425,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+    return wrap(ctx, item,
+        ctrlr: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(start, style: GoogleFonts.firaCode()),
-                Text(end, style: GoogleFonts.firaCode()),
+                Text(
+                  start,
+                  style: GoogleFonts.firaCode(),
+                ),
+                Text(
+                  end,
+                  style: GoogleFonts.firaCode(),
+                ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: paramWidget,
-            ),
+            paramWidget,
           ],
-        ),
-      ),
-      children: [
-        Text(
-          "Start: $start",
-          style: GoogleFonts.firaCode(),
-        ),
-        Text(
-          "  End: $end",
-          style: GoogleFonts.firaCode(),
-        ),
-      ],
-    );
+        ));
   }
 
   Future<void> setValue(ControlItem item, dynamic value) async {
@@ -332,5 +287,49 @@ class _ControlItemWidgetState extends State<ControlItemWidget> {
     setState(() {
       widget.values.setValue(item, value);
     });
+  }
+
+  Widget wrap(BuildContext ctx, ControlItem item,
+      {Widget? ctrlr, Widget? value}) {
+    final theme = Theme.of(ctx);
+
+    final big = ResponsiveBreakpoints.of(ctx).largerThan(TABLET);
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                item.name,
+                style: theme.textTheme.titleLarge,
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: Text(
+                  item.desc,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                      fontStyle: FontStyle.italic, color: theme.hintColor),
+                ),
+              ),
+              if (big && value != null) Flexible(child: value),
+              if (big && ctrlr != null) Flexible(child: ctrlr),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          if (!big && value != null) value,
+          if (!big && ctrlr != null) ctrlr,
+          const Divider(),
+        ],
+      ),
+    );
   }
 }

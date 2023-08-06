@@ -23,6 +23,7 @@ dependencies:
   omni_datetime_picker: ^1.0.7
   toggle_switch: ^2.1.0
   intl: ^0.18.1
+  responsive_framework: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +35,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # generate: true
+  generate: true
   assets:
     - assets/ctlr_sample.json
