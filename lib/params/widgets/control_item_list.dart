@@ -1,11 +1,9 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:quickctl/params/model.dart';
-import 'package:quickctl/services/utils.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 

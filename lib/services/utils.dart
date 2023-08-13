@@ -1,14 +1,10 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:quickctl/router.dart';
 
-import 'config.dart';
 
 typedef AfterConfirm = Function(BuildContext);
 
@@ -115,7 +111,7 @@ Widget resolve<T>({
                 child: Text(snapshot.error.toString()),
               );
       }
-      return Text('-- -- --');
+      return const Text('-- -- --');
     },
   );
 }
@@ -129,7 +125,7 @@ void showError(BuildContext ctx, String msg) {
 }
 
 void dumpAsJsonFile(String path, dynamic obj) {
-  final encoder = JsonEncoder.withIndent('  ');
+  const encoder = JsonEncoder.withIndent('  ');
   final contents = encoder.convert(obj);
   final file = File(path);
   if (file.existsSync()) {

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickctl/params/model.dart';
 import 'package:quickctl/params/widgets/control_item_list.dart';
-import 'package:quickctl/services/model.dart';
 import 'package:quickctl/services/utils.dart';
 
 class ControlWidget extends StatefulWidget {
